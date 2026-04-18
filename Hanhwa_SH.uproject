@@ -14,6 +14,14 @@
 		{
 			"Name": "HttpBlueprint",
 			"Enabled": true
+		},
+		{
+			"Name": "SimpleUDP",
+			"Enabled": true
+		},
+		{
+			"Name": "SimpleByteConversion",
+			"Enabled": true
 		}
 	]
 }
