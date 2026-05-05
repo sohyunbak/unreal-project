@@ -1,0 +1,31 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SimpleByteConversion",
+	"Description": "A simple and lightweight blueprint-accessible byte conversion tool for Unreal Engine.",
+	"Category": "Other",
+	"CreatedBy": "mengzhishanghun",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/MZSH-UEPlugins/UEPluginDocs/blob/main/SimpleByteConversion/README.md",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "5.7.0",
+	"EnabledByDefault" : true,
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "SimpleByteConversion",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac",
+				"Linux",
+				"Android",
+				"IOS"
+			]
+		}
+	]
+}

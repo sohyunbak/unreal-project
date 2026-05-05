@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SimpleUDP",
+	"Description": "A lightweight and Blueprint-friendly UDP plugin for Unreal Engine. Supports message sending, receiving, broadcasting, and IP filtering with automatic socket management.",
+	"Category": "Other",
+	"CreatedBy": "mengzhishanghun",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/MZSH-UEPlugins/UEPluginDocs/blob/main/SimpleUDP/README.md",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "5.7.0",
+	"EnabledByDefault" : true,
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "SimpleUDP",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
+		}
+	]
+}

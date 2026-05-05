@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 5,
+	"VersionName": "2.2.0",
+	"FriendlyName": "CheckAppInstance",
+	"Description": "This plugin makes it possible only one instance of your game can be run at the same time",
+	"Category": "Other",
+	"CreatedBy": "Andrew Bindraw",
+	"CreatedByURL": "https://github.com/mrbindraw",
+	"DocsURL": "https://github.com/mrbindraw/CheckAppInstance/blob/master/README.md",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/6a008b19e3ab40fba3f35125fc871373",
+	"SupportURL": "mailto:mrbindraw@gmail.com",
+	"EngineVersion": "5.7.0",
+	"EnabledByDefault" : true,
+	"CanContainContent": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "CheckAppInstance",
+			"Type": "Runtime",
+			"LoadingPhase": "EarliestPossible",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
+		}
+	]
+}
