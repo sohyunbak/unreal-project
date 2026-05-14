@@ -15,6 +15,9 @@ public class FlopAI : ModuleRules
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
+        // Require C++20 for concepts/requires clauses used in ResponseBuilder.h and SystemRetrieval.h
+        CppStandard = CppStandardVersion.Cpp20;
+
         
         PublicIncludePaths.AddRange(
             new string[] {
@@ -25,7 +28,16 @@ public class FlopAI : ModuleRules
 
         PrivateIncludePaths.AddRange(
             new string[] {
-				// ... add other private include paths required here ...
+                // UMGEditor ships K2Node_CreateWidget.h + K2Node_GeneratedBoundEvent.h
+                // under Private/Nodes/. The composer's CompletionNodeHandlers uses
+                // __has_include("K2Node_CreateWidget.h") to detect these â€” UBT does
+                // NOT recursively search PrivateIncludePaths, so the Private/Nodes
+                // subdirectory must be listed explicitly. Without these paths the
+                // create_widget / widget_bound_event handlers silently skip
+                // registration and apply_spec returns "no handler registered for
+                // node type 'create_widget'" at apply time.
+                System.IO.Path.Combine(EngineDirectory, "Source", "Editor", "UMGEditor", "Private"),
+                System.IO.Path.Combine(EngineDirectory, "Source", "Editor", "UMGEditor", "Private", "Nodes"),
 			}
             );
 
@@ -78,6 +90,7 @@ public class FlopAI : ModuleRules
                 "InputBlueprintNodes",
                 "ImageCore",
                 "RenderCore",
+                "RHI",
                 "EditorFramework",
                 "MessageLog",
                 "ClassViewer",
@@ -98,20 +111,24 @@ public class FlopAI : ModuleRules
                 "AnimGraphRuntime",
                 "MovieScene",
                 "MovieSceneTracks",
+                "LevelSequenceEditor",
                 "EnvironmentQueryEditor",
                 "GameplayTags",
                 "GameplayTagsEditor",
                 "MaterialEditor",
+                "AudioEditor",
                 "LevelSequence",
                 "Landscape",
                 "LandscapeEditor",
                 "Foliage",
+                "Chaos",
                 "GeometryCollectionEngine",
                 "ChaosSolverEngine",
                 "FieldSystemEngine",
                 "PhysicsCore",
                 "PhysicsUtilities",
-                "SkeletalMeshEditor"
+                "SkeletalMeshEditor",
+                "StructUtils"
 			// ... add private dependencies that you statically link with here ...
 		}
         );
@@ -135,6 +152,10 @@ public class FlopAI : ModuleRules
         SetupOptionalModule(Target, "SmartObjectsModule", "WITH_SMART_OBJECTS");
         SetupOptionalModule(Target, "StateTreeModule", "WITH_STATE_TREE");
         SetupOptionalModule(Target, "StateTreeEditorModule", "WITH_STATE_TREE_EDITOR");
+        // PropertyBindingUtils â€” UE 5.6+ extracted FPropertyBindingPath /
+        // FPropertyBindingBindingCollection out of StateTree into this plugin.
+        // StateTree's bind_property path links against it directly.
+        SetupOptionalModule(Target, "PropertyBindingUtils", "WITH_PROPERTY_BINDING_UTILS");
         // GameplayAbilities ships as an engine plugin (Engine/Plugins/Runtime/GameplayAbilities/)
         // since UE 4.x. Always present on disk even though it's disabled-by-default in new
         // projects. Same reason as PCG/MetaSound/IKRig below â€” SetupOptionalModule's path
@@ -227,11 +248,16 @@ public class FlopAI : ModuleRules
 
             string[] SearchRoots = new string[]
             {
+                // Installed engine builds (Epic Launcher): plugins live under
+                // <UE_x.y>/Engine/Plugins. EngineDirectory IS the Engine dir,
+                // so this is the canonical lookup. The other paths below cover
+                // source builds, plugin-from-project layouts, and fallbacks.
+                System.IO.Path.Combine(EngineDirectory, "Plugins"),
+                System.IO.Path.Combine(EngineDirectory, "Source"),
                 System.IO.Path.Combine(EngineDir, "Plugins"),
                 System.IO.Path.Combine(ProjectDir, "Plugins"),
                 System.IO.Path.Combine(ProjectDir, "Source"),
                 System.IO.Path.Combine(EngineDir, "Source"),
-                // Installed engine builds: Engine is at the root, not under Source
                 System.IO.Path.Combine(EngineDir, "..", "Plugins"),
             };
 
@@ -249,17 +275,28 @@ public class FlopAI : ModuleRules
             }
 
             // Fallback for installed builds: check if the module's public headers exist
-            // in the Engine/Plugins directory tree (handles Epic launcher installs)
+            // in the Engine/Plugins directory tree (handles Epic launcher installs).
+            // EngineDirectory IS the Engine dir, so the correct lookup is
+            // <EngineDirectory>/Plugins, not the parent (which has no Plugins
+            // folder in installed layouts).
             if (!bModuleAvailable)
             {
                 string HeaderName = ModuleName + ".h";
-                string PluginsDir = System.IO.Path.Combine(EngineDir, "Plugins");
-                if (System.IO.Directory.Exists(PluginsDir))
+                string[] PluginsRoots = new string[]
                 {
-                    string[] HeaderFiles = System.IO.Directory.GetFiles(PluginsDir, HeaderName, System.IO.SearchOption.AllDirectories);
-                    if (HeaderFiles.Length > 0)
+                    System.IO.Path.Combine(EngineDirectory, "Plugins"),
+                    System.IO.Path.Combine(EngineDir, "Plugins"),
+                };
+                foreach (string PluginsDir in PluginsRoots)
+                {
+                    if (System.IO.Directory.Exists(PluginsDir))
                     {
-                        bModuleAvailable = true;
+                        string[] HeaderFiles = System.IO.Directory.GetFiles(PluginsDir, HeaderName, System.IO.SearchOption.AllDirectories);
+                        if (HeaderFiles.Length > 0)
+                        {
+                            bModuleAvailable = true;
+                            break;
+                        }
                     }
                 }
             }
